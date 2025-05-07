@@ -104,6 +104,12 @@ require_once "config.php";
         .back-btn:hover {
             background-color: #8a2be2; /* Blue violet */
         }
+        .add-btn {
+            background-color: #32cd32; /* Lime green */
+        }
+        .add-btn:hover {
+            background-color: #228b22; /* Forest green */
+        }
         .empty-message {
             text-align: center;
             padding: 20px;
@@ -116,12 +122,22 @@ require_once "config.php";
             margin-bottom: 20px;
             text-align: center;
         }
+        .action-link {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .delete-link {
+            color: #ff4040;
+        }
+        .delete-link:hover {
+            color: #cc0000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>? Categories ?</h1>
-        <a href="index.php" class="back-link">� Back to notes list</a>
+        <h1>✨ Categories ✨</h1>
+        <a href="index.php" class="back-link">← Back to notes list</a>
         
         <?php
         // Create a simple model class for categories
@@ -148,6 +164,40 @@ require_once "config.php";
                 }
                 return $categories;
             }
+            
+            public function deleteCategory($id) {
+                // First, update any notes that use this category to have no category
+                $id = $this->db->con->real_escape_string($id);
+                $updateSql = "UPDATE notes SET category_id = NULL WHERE category_id = '$id'";
+                $this->db->query($updateSql);
+                
+                // Then delete the category
+                $sql = "DELETE FROM categories WHERE id = '$id'";
+                $result = $this->db->query($sql);
+                
+                if (!$result) {
+                    error_log("Delete category failed: " . $this->db->con->error);
+                    return false;
+                }
+                return true;
+            }
+        }
+        
+        // Process delete request if present
+        if (isset($_GET['delete'])) {
+            $model = new CategoriesModel();
+            $id = $_GET['delete'];
+            $deleteResult = $model->deleteCategory($id);
+            
+            if ($deleteResult) {
+                echo "<div style='padding: 12px; margin: 20px 0; border-radius: 8px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;'>";
+                echo "Category deleted successfully!";
+                echo "</div>";
+            } else {
+                echo "<div style='padding: 12px; margin: 20px 0; border-radius: 8px; background-color: #ffddee; color: #ff1493; border: 1px solid #ffb6c1;'>";
+                echo "Failed to delete category.";
+                echo "</div>";
+            }
         }
         
         // Get all categories
@@ -156,17 +206,20 @@ require_once "config.php";
         
         // Display categories
         if (empty($categories)) {
-            echo "<div class='empty-message'>No categories found. You need to create categories before assigning them to notes.</div>";
+            echo "<div class='empty-message'>No categories found. You can create categories to help organize your notes.</div>";
         } else {
             echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th><th>Color</th><th>Created At</th></tr>";
+            echo "<tr><th>Name</th><th>Color</th><th>Created At</th><th>Actions</th></tr>";
             
             foreach ($categories as $category) {
                 echo "<tr>";
-                echo "<td>" . htmlspecialchars($category['id']) . "</td>";
                 echo "<td>" . htmlspecialchars($category['name']) . "</td>";
                 echo "<td><span class='color-sample' style='background-color:" . htmlspecialchars($category['color']) . "'></span> " . htmlspecialchars($category['color']) . "</td>";
                 echo "<td>" . htmlspecialchars($category['created_at']) . "</td>";
+                echo "<td>";
+                echo "<a href='edit_category.php?id=" . urlencode($category['id']) . "' class='action-link'>Edit</a>";
+                echo "<a href='categories.php?delete=" . urlencode($category['id']) . "' class='action-link delete-link' onclick=\"return confirm('Are you sure you want to delete this category? Notes using this category will be updated to have no category.');\">Delete</a>";
+                echo "</td>";
                 echo "</tr>";
             }
             
@@ -176,7 +229,7 @@ require_once "config.php";
         
         <div class="actions">
             <a href="index.php" class="btn back-btn">Back to Notes</a>
-            <a href="create.php" class="btn">Create New Note</a>
+            <a href="add_category.php" class="btn add-btn">Add New Category</a>
         </div>
     </div>
 </body>
