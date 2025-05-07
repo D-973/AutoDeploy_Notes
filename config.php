@@ -1,7 +1,7 @@
 <?php
 
 // Define path constants
-define("APP_PATH", "http://103.186.0.180/notes-app"); // Ensure this is the correct URL for your application
+define("APP_PATH", "https://myjenkinsnotes.duckdns.org/AutoDeploy_Notes"); // Ensure this is the correct URL for your application
 
 // Define database config
 define("HOST_DB", "localhost"); // This should be the hostname of your database server
