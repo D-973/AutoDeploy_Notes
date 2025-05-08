@@ -105,7 +105,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1> <3 My Notes <3 </h1>
+            <h1> <3 Reza Michael Yohanes Lontoh <3 </h1>
             <a href="create.php" class="create-btn">+ Create Note</a>
             <a href="categories.php" class="categories-btn">View Categories</a>
         </div>
